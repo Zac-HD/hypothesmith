@@ -1,0 +1,9 @@
+# Development requirements come from this file.
+# `black` and `hypothesis` are specified in setup.py
+autoflake
+flake8
+isort
+mypy
+pytest
+pytest-cov
+pyupgrade
