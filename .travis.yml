@@ -7,8 +7,8 @@ install:
 script:
   - tox
   - git diff --exit-code
-# jobs:
-#   include:
-#     - stage: publish
-#       if: branch = master AND repo = Zac-HD/hypothesmith
-#       script: python setup.py sdist && twine upload --skip-existing dist/*
+jobs:
+  include:
+    - stage: publish
+      if: branch = master AND repo = Zac-HD/hypothesmith
+      script: python setup.py sdist bdist_wheel && twine upload --skip-existing dist/*
