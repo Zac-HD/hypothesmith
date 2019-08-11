@@ -37,7 +37,10 @@ def utf8_encodable(terminal: str) -> bool:
     try:
         terminal.encode()
         return True
-    except UnicodeEncodeError:
+    except UnicodeEncodeError:  # pragma: no cover
+        # Very rarely, a "." in some terminal regex will generate a surrogate
+        # character that cannot be encoded as UTF-8.  We apply this filter to
+        # ensure it doesn't happen at runtime, but don't worry about coverage.
         return False
 
 
@@ -48,30 +51,35 @@ class GrammarStrategy(LarkStrategy):
     # Note however that we may want to keep this anyway, to filter out
     # any non-utf8-encodable strings that match the terminal regexen.
 
-    def __init__(
-        self, grammar: Lark, start: str = None, explicit_strategies: dict = None
-    ):
+    def __init__(self, grammar: Lark, start: str, explicit_strategies: dict):
         LarkStrategy.__init__(self, grammar, start=start)  # type: ignore
-
         terminals, _, _ = grammar.grammar.compile(start)
         self.terminal_strategies = {
             t.name: st.from_regex(t.pattern.to_regexp(), True).filter(utf8_encodable)
             for t in terminals
         }
-        self.terminal_strategies.update(explicit_strategies or {})
+        self.terminal_strategies.update(explicit_strategies)
+
+    def draw_symbol(self, data, symbol, draw_state):  # type: ignore
+        count = len(draw_state.result)
+        LarkStrategy.draw_symbol(self, data, symbol, draw_state)
+        drawn = "".join(draw_state.result[count:])
+        if symbol.name == "eval_input":
+            check_and_fix(drawn, mode="eval")
+        if symbol.name in {"stmt", "simple_stmt", "compound_stmt"}:
+            check_and_fix(drawn, mode="single")
 
 
-def fixup(source_code: str) -> str:
+def check_and_fix(source_code: str, *, mode: str = "exec") -> str:
     """Strip trailing whitespace and backslash if any and add ending newline."""
-    assume("\0" not in source_code)
-    source_code = source_code.rstrip(" \t\n\r\v\f\\") + "\n"
+    source_code = source_code.replace("\0", "").rstrip(" \t\n\r\v\f\\")
     try:
-        compile(source=source_code, filename="<string>", mode="exec")
-    except (SyntaxError):
+        compile(source=source_code, filename="<string>", mode=mode)
+    except SyntaxError:
         # Python's grammar doesn't actually fully describe the behaviour of the
         # CPython parser and AST-post-processor, so we just filter out errors.
         assume(False)
-    return source_code
+    return source_code + "\n"
 
 
 def from_grammar(start: str = "file_input") -> st.SearchStrategy[str]:
@@ -95,4 +103,4 @@ def from_grammar(start: str = "file_input") -> st.SearchStrategy[str]:
         _DEDENT=st.just(""),
         NAME=st.from_regex(r"[a-z_A-Z]+", fullmatch=True).filter(str.isidentifier),
     )
-    return GrammarStrategy(grammar, start, explicit_strategies).map(fixup)
+    return GrammarStrategy(grammar, start, explicit_strategies).map(check_and_fix)
