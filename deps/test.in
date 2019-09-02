@@ -1,0 +1,5 @@
+# Top-level dependencies for `tox -e test`
+black
+pytest
+pytest-cov
+pytest-xdist
