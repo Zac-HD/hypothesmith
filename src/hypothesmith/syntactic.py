@@ -22,6 +22,14 @@ else:  # pragma: no cover
     with open(fname, "w") as f:
         f.write(lark_grammar)
 
+COMPILE_MODES = {
+    "eval_input": "eval",
+    "file_input": "exec",
+    "stmt": "single",
+    "simple_stmt": "single",
+    "compound_stmt": "single",
+}
+
 
 class PythonIndenter(Indenter):
     # https://github.com/lark-parser/lark/blob/master/examples/python_parser.py
@@ -45,41 +53,27 @@ def utf8_encodable(terminal: str) -> bool:
 
 
 class GrammarStrategy(LarkStrategy):
-    # TODO: upstream pull request to support custom strategies for terminals.
-    # https://github.com/HypothesisWorks/hypothesis/compare/master...Zac-HD:lark-python
-    #
-    # Note however that we may want to keep this anyway, to filter out
-    # any non-utf8-encodable strings that match the terminal regexen.
-
     def __init__(self, grammar: Lark, start: str, explicit_strategies: dict):
-        LarkStrategy.__init__(self, grammar, start=start)  # type: ignore
-        terminals, _, _ = grammar.grammar.compile(start)
+        super().__init__(grammar, start, explicit_strategies)  # type: ignore
         self.terminal_strategies = {
-            t.name: st.from_regex(t.pattern.to_regexp(), True).filter(utf8_encodable)
-            for t in terminals
+            k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
+            for k, v in self.terminal_strategies.items()
         }
-        self.terminal_strategies.update(explicit_strategies)
 
     def draw_symbol(self, data, symbol, draw_state):  # type: ignore
         count = len(draw_state.result)
-        LarkStrategy.draw_symbol(self, data, symbol, draw_state)
-        drawn = "".join(draw_state.result[count:])
-        if symbol.name == "eval_input":
-            check_and_fix(drawn, mode="eval")
-        if symbol.name in {"stmt", "simple_stmt", "compound_stmt"}:
-            check_and_fix(drawn, mode="single")
-
-
-def check_and_fix(source_code: str, *, mode: str = "exec") -> str:
-    """Strip trailing whitespace and backslash if any and add ending newline."""
-    source_code = source_code.replace("\0", "").rstrip(" \t\n\r\v\f\\")
-    try:
-        compile(source=source_code, filename="<string>", mode=mode)
-    except SyntaxError:
-        # Python's grammar doesn't actually fully describe the behaviour of the
-        # CPython parser and AST-post-processor, so we just filter out errors.
-        assume(False)
-    return source_code + "\n"
+        super().draw_symbol(data, symbol, draw_state)
+        if symbol.name in COMPILE_MODES:
+            try:
+                compile(
+                    source="".join(draw_state.result[count:]),
+                    filename="<string>",
+                    mode=COMPILE_MODES[symbol.name],
+                )
+            except SyntaxError:
+                # Python's grammar doesn't actually fully describe the behaviour of the
+                # CPython parser and AST-post-processor, so we just filter out errors.
+                assume(False)
 
 
 def from_grammar(start: str = "file_input") -> st.SearchStrategy[str]:
@@ -103,4 +97,4 @@ def from_grammar(start: str = "file_input") -> st.SearchStrategy[str]:
         _DEDENT=st.just(""),
         NAME=st.from_regex(r"[a-z_A-Z]+", fullmatch=True).filter(str.isidentifier),
     )
-    return GrammarStrategy(grammar, start, explicit_strategies).map(check_and_fix)
+    return GrammarStrategy(grammar, start, explicit_strategies)

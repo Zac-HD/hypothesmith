@@ -12,6 +12,10 @@ Use `tox -va` to see what environments are available.
 
 ## Changelog
 
+### 0.0.4 - 2019-09-10
+- Depends on more recent Hypothesis version, with upstreamed grammar generation.
+- Improved filtering rejects fewer valid examples, finding another bug in Black.
+
 ### 0.0.3 - 2019-08-08
 Checks validity at statement level, which makes filtering much more efficient.
 Improved testing, input validation, and code comments.

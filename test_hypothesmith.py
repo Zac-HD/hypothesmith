@@ -6,8 +6,9 @@ from pathlib import Path
 from typing import NamedTuple
 
 import black
+import blib2to3
 import hypothesis.strategies as st
-from hypothesis import HealthCheck, given, note, settings
+from hypothesis import HealthCheck, given, note, reject, settings
 
 import hypothesmith
 
@@ -30,7 +31,11 @@ def test_black_autoformatter(source_code, mode):
     note("\n\n#####################################################\n\n")
     note(source_code)
     note("\n------------------------------------------------------\n")
-    note(black.format_str(source_code, mode=mode))
+    try:
+        note(black.format_str(source_code, mode=mode))
+    except blib2to3.pgen2.tokenize.TokenError:
+        # Fails to tokenise e.g. "\\", though compile("\\", "<string>", "exec") works.
+        reject()
 
 
 @given(source_code=hypothesmith.from_grammar("eval_input"))
