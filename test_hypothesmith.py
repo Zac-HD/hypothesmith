@@ -1,5 +1,7 @@
 """Tests for the hypothesmith tools."""
+import io
 import re
+import tokenize
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -8,14 +10,47 @@ from typing import NamedTuple
 import black
 import blib2to3
 import hypothesis.strategies as st
-from hypothesis import HealthCheck, given, note, reject, settings
+import pytest
+from hypothesis import HealthCheck, example, given, note, reject, settings
 
 import hypothesmith
 
 settings.register_profile(
-    "slow", deadline=None, suppress_health_check=[HealthCheck.too_slow]
+    "slow",
+    deadline=None,
+    suppress_health_check=[HealthCheck.too_slow, HealthCheck.filter_too_much],
 )
 settings.load_profile("slow")
+
+
+@pytest.mark.xfail
+@example("#")
+@example("\n\\\n")
+@given(source_code=hypothesmith.from_grammar())
+def test_tokenize_round_trip_bytes(source_code):
+    try:
+        source = source_code.encode("utf-8-sig")
+    except UnicodeEncodeError:
+        reject()
+    tokens = list(tokenize.tokenize(io.BytesIO(source).readline))
+    outbytes = tokenize.untokenize(tokens)  # may have changed whitespace from source
+    output = list(tokenize.tokenize(io.BytesIO(outbytes).readline))
+    assert [(t.type, t.string) for t in tokens] == [(t.type, t.string) for t in output]
+    # It would be nice if the round-tripped string stabilised.  It doesn't.
+    # assert outbytes == tokenize.untokenize(output)
+
+
+@pytest.mark.xfail
+@example("#")
+@example("\n\\\n")
+@given(source_code=hypothesmith.from_grammar())
+def test_tokenize_round_trip_string(source_code):
+    tokens = list(tokenize.generate_tokens(io.StringIO(source_code).readline))
+    outstring = tokenize.untokenize(tokens)  # may have changed whitespace from source
+    output = tokenize.generate_tokens(io.StringIO(outstring).readline)
+    assert [(t.type, t.string) for t in tokens] == [(t.type, t.string) for t in output]
+    # It would be nice if the round-tripped string stabilised.  It doesn't.
+    # assert outstring == tokenize.untokenize(output)
 
 
 @given(
@@ -35,6 +70,7 @@ def test_black_autoformatter(source_code, mode):
         note(black.format_str(source_code, mode=mode))
     except blib2to3.pgen2.tokenize.TokenError:
         # Fails to tokenise e.g. "\\", though compile("\\", "<string>", "exec") works.
+        # See https://github.com/psf/black/issues/1012
         reject()
 
 
