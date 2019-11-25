@@ -54,10 +54,10 @@ def utf8_encodable(terminal: str) -> bool:
 
 class GrammarStrategy(LarkStrategy):
     def __init__(self, grammar: Lark, start: str, explicit_strategies: dict):
-        super().__init__(grammar, start, explicit_strategies)  # type: ignore
+        super().__init__(grammar, start, explicit_strategies)
         self.terminal_strategies = {
             k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
-            for k, v in self.terminal_strategies.items()
+            for k, v in self.terminal_strategies.items()  # type: ignore
         }
 
     def draw_symbol(self, data, symbol, draw_state):  # type: ignore
