@@ -12,6 +12,9 @@ Use `tox -va` to see what environments are available.
 
 ## Changelog
 
+### 0.0.5 - 2019-11-27
+- Updated project metadata and started testing on Python 3.8
+
 ### 0.0.4 - 2019-09-10
 - Depends on more recent Hypothesis version, with upstreamed grammar generation.
 - Improved filtering rejects fewer valid examples, finding another bug in Black.
