@@ -16,17 +16,21 @@ from hypothesis import HealthCheck, example, given, note, reject, settings
 import hypothesmith
 
 settings.register_profile(
-    "slow",
-    deadline=None,
-    suppress_health_check=[HealthCheck.too_slow, HealthCheck.filter_too_much],
+    "slow", deadline=None, suppress_health_check=HealthCheck.all(),
 )
 settings.load_profile("slow")
+
+
+def fixup(s):
+    """Avoid known issues with tokenize() by editing the string."""
+    return "".join(x for x in s if x.isprintable()).strip().strip("\\").strip() + "\n"
 
 
 @pytest.mark.xfail
 @example("#")
 @example("\n\\\n")
-@given(source_code=hypothesmith.from_grammar())
+@example("#\n\x0cpass#\n")
+@given(source_code=hypothesmith.from_grammar().map(fixup).filter(str.strip))
 def test_tokenize_round_trip_bytes(source_code):
     try:
         source = source_code.encode("utf-8-sig")
@@ -43,7 +47,8 @@ def test_tokenize_round_trip_bytes(source_code):
 @pytest.mark.xfail
 @example("#")
 @example("\n\\\n")
-@given(source_code=hypothesmith.from_grammar())
+@example("#\n\x0cpass#\n")
+@given(source_code=hypothesmith.from_grammar().map(fixup).filter(str.strip))
 def test_tokenize_round_trip_string(source_code):
     tokens = list(tokenize.generate_tokens(io.StringIO(source_code).readline))
     outstring = tokenize.untokenize(tokens)  # may have changed whitespace from source
