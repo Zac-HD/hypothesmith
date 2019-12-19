@@ -1,4 +1,5 @@
 """Tests for the hypothesmith tools."""
+import ast
 import io
 import re
 import tokenize
@@ -56,6 +57,15 @@ def test_tokenize_round_trip_string(source_code):
     assert [(t.type, t.string) for t in tokens] == [(t.type, t.string) for t in output]
     # It would be nice if the round-tripped string stabilised.  It doesn't.
     # assert outstring == tokenize.untokenize(output)
+
+
+@pytest.mark.skipif(not hasattr(ast, "unparse"), reason="Can't test before available")
+@given(source_code=hypothesmith.from_grammar())
+def test_ast_unparse(source_code):
+    first = ast.parse(source_code)
+    unparsed = ast.unparse(first)
+    second = ast.parse(unparsed)
+    assert ast.dump(first) == ast.dump(second)
 
 
 @given(
