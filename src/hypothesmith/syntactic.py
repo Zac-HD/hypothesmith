@@ -1,6 +1,9 @@
 """Hypothesis strategies for generating Python source code, somewhat like CSmith."""
 
+import re
+import sys
 import urllib.request
+from functools import lru_cache
 from pathlib import Path
 
 import hypothesis.strategies as st
@@ -31,6 +34,19 @@ COMPILE_MODES = {
 }
 
 
+@lru_cache()
+def identifiers() -> st.SearchStrategy[str]:
+    _lead = []
+    _subs = []
+    for c in map(chr, range(sys.maxunicode + 1)):
+        if c.isidentifier():
+            _lead.append(c)  # e.g. "a"
+        if ("_" + c).isidentifier():
+            _subs.append(c)  # e.g. "1"
+    pattern = "[{}][{}]*".format(re.escape("".join(_lead)), re.escape("".join(_subs)))
+    return st.from_regex(pattern, fullmatch=True)
+
+
 class PythonIndenter(Indenter):
     # https://github.com/lark-parser/lark/blob/master/examples/python_parser.py
     NL_type = "_NEWLINE"
@@ -53,7 +69,12 @@ def utf8_encodable(terminal: str) -> bool:
 
 
 class GrammarStrategy(LarkStrategy):
-    def __init__(self, grammar: Lark, start: str, explicit_strategies: dict):
+    def __init__(self, grammar: Lark, start: str):
+        explicit_strategies = {
+            PythonIndenter.INDENT_type: st.just(" " * PythonIndenter.tab_len),
+            PythonIndenter.DEDENT_type: st.just(""),
+            "NAME": identifiers(),
+        }
         super().__init__(grammar, start, explicit_strategies)
         self.terminal_strategies = {
             k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
@@ -92,9 +113,4 @@ def from_grammar(start: str = "file_input") -> st.SearchStrategy[str]:
     """
     assert start in {"single_input", "file_input", "eval_input"}
     grammar = Lark(lark_grammar, parser="lalr", postlex=PythonIndenter(), start=start)
-    explicit_strategies = dict(
-        _INDENT=st.just(" " * 4),
-        _DEDENT=st.just(""),
-        NAME=st.from_regex(r"[a-z_A-Z]+", fullmatch=True).filter(str.isidentifier),
-    )
-    return GrammarStrategy(grammar, start, explicit_strategies)
+    return GrammarStrategy(grammar, start)

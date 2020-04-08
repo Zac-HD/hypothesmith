@@ -94,6 +94,12 @@ def test_eval_input_generation(source_code):
     compile(source_code, filename="<string>", mode="eval")
 
 
+@given(hypothesmith.syntactic.identifiers())
+def test_names_are_all_identifiers(name):
+    assert name.isidentifier()
+    name.encode()  # should be UTF-8 encodable
+
+
 class Version(NamedTuple):
     major: int
     minor: int

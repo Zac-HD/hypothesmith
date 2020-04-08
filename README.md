@@ -12,6 +12,9 @@ Use `tox -va` to see what environments are available.
 
 ## Changelog
 
+### 0.0.6 - 2020-04-08
+- support for non-ASCII identifiers
+
 ### 0.0.5 - 2019-11-27
 - Updated project metadata and started testing on Python 3.8
 
