@@ -12,6 +12,10 @@ Use `tox -va` to see what environments are available.
 
 ## Changelog
 
+### 0.0.7 - 2020-04-19
+- The `from_grammar()` strategy now takes an `auto_target=True` argument, to
+drive generated examples towards (relatively) larger and more complex programs.
+
 ### 0.0.6 - 2020-04-08
 - support for non-ASCII identifiers
 

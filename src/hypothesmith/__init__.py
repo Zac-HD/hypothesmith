@@ -2,5 +2,5 @@
 
 from hypothesmith.syntactic import from_grammar
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 __all__ = ["from_grammar"]

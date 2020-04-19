@@ -94,6 +94,11 @@ def test_eval_input_generation(source_code):
     compile(source_code, filename="<string>", mode="eval")
 
 
+@given(source_code=hypothesmith.from_grammar(auto_target=False))
+def test_generation_without_targeting(source_code):
+    compile(source_code, filename="<string>", mode="exec")
+
+
 @given(hypothesmith.syntactic.identifiers())
 def test_names_are_all_identifiers(name):
     assert name.isidentifier()
