@@ -41,6 +41,8 @@ def identifiers() -> st.SearchStrategy[str]:
     _lead = []
     _subs = []
     for c in map(chr, range(sys.maxunicode + 1)):
+        if not utf8_encodable(c):
+            continue
         if c.isidentifier():
             _lead.append(c)  # e.g. "a"
         if ("_" + c).isidentifier():
