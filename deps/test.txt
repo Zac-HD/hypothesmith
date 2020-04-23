@@ -11,14 +11,14 @@ attrs==19.3.0             # via black, hypothesis, pytest
 black==19.10b0            # via -r deps/test.in
 click==7.1.1              # via black
 colorama==0.4.3           # via pytest
-coverage==5.0.4           # via pytest-cov
+coverage==5.1             # via pytest-cov
 execnet==1.7.1            # via pytest-xdist
-hypothesis==5.8.0         # via hypothesmith (setup.py)
+hypothesis==5.10.3        # via hypothesmith (setup.py)
 importlib-metadata==1.6.0  # via pluggy, pytest
 lark-parser==0.8.5        # via hypothesmith (setup.py)
 more-itertools==8.2.0     # via pytest
 packaging==20.3           # via pytest
-pathspec==0.7.0           # via black
+pathspec==0.8.0           # via black
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pyparsing==2.4.7          # via packaging

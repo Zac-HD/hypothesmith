@@ -18,24 +18,24 @@ flake8-comprehensions==3.2.2  # via -r deps/check.in
 flake8-docstrings==1.5.0  # via -r deps/check.in
 flake8-polyfill==1.0.2    # via flake8-bandit
 flake8==3.7.9             # via -r deps/check.in, flake8-bandit, flake8-bugbear, flake8-comprehensions, flake8-docstrings, flake8-polyfill
-gitdb==4.0.2              # via gitpython
-gitpython==3.1.0          # via bandit
+gitdb==4.0.4              # via gitpython
+gitpython==3.1.1          # via bandit
 importlib-metadata==1.6.0  # via flake8-comprehensions
 isort==4.3.21             # via shed
 mccabe==0.6.1             # via flake8
 mypy-extensions==0.4.3    # via mypy
 mypy==0.770               # via -r deps/check.in
-pathspec==0.7.0           # via black
+pathspec==0.8.0           # via black
 pbr==5.4.5                # via stevedore
 pycodestyle==2.5.0        # via flake8, flake8-bandit
 pydocstyle==5.0.2         # via flake8-docstrings
 pyflakes==2.1.1           # via autoflake, flake8
-pyupgrade==2.1.0          # via shed
+pyupgrade==2.2.1          # via shed
 pyyaml==5.3.1             # via bandit
 regex==2020.4.4           # via black
-shed==0.0.1               # via -r deps/check.in
+shed==0.0.3               # via -r deps/check.in
 six==1.14.0               # via bandit, stevedore
-smmap==3.0.1              # via gitdb
+smmap==3.0.2              # via gitdb
 snowballstemmer==2.0.0    # via pydocstyle
 stevedore==1.32.0         # via bandit
 tokenize-rt==4.0.0        # via pyupgrade
