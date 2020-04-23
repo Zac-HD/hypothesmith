@@ -12,6 +12,11 @@ Use `tox -va` to see what environments are available.
 
 ## Changelog
 
+### 0.0.8 - 2020-04-23
+- Added a `from_node()` strategy which uses [`LibCST`](https://pypi.org/project/libcst/)
+  to generate source code.  This is a proof-of-concept rather than a robust tool,
+  but IMO it's a pretty cool concept.
+
 ### 0.0.7 - 2020-04-19
 - The `from_grammar()` strategy now takes an `auto_target=True` argument, to
 drive generated examples towards (relatively) larger and more complex programs.
