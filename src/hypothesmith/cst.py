@@ -131,7 +131,7 @@ def compilable(code: str, mode: str = "exec") -> bool:
     try:
         compile(code, "<string>", mode)
         return True
-    except SyntaxError:
+    except (SyntaxError, ValueError):
         return False
 
 

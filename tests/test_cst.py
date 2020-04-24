@@ -7,9 +7,10 @@ import black
 import hypothesis.strategies as st
 import libcst
 import pytest
-from hypothesis import given, note
+from hypothesis import example, given, note
 
 import hypothesmith
+from hypothesmith.cst import compilable
 
 NODE_TYPES = frozenset(
     v
@@ -64,3 +65,9 @@ def test_black_autoformatter_from_nodes(source_code, mode):
         black.format_file_contents(source_code, fast=False, mode=mode)
     except black.NothingChanged:
         pass
+
+
+@example("\x00")
+@given(st.text())
+def test_compilable_never_raises(s):
+    compilable(s)
