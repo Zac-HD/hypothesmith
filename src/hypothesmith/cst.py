@@ -5,6 +5,8 @@ Thanks to Instagram for open-sourcing libCST (which is great!) and
 thanks to Tolkein for the name of this module.
 """
 
+import ast
+import dis
 from inspect import getfullargspec
 from tokenize import (  # type: ignore
     Floatnumber as FLOATNUMBER_RE,
@@ -15,7 +17,7 @@ from typing import Type, Union
 
 import hypothesis.strategies as st
 import libcst
-from hypothesis import infer
+from hypothesis import infer, target
 
 from hypothesmith.syntactic import identifiers
 
@@ -25,11 +27,16 @@ for node_type, pattern in {
     libcst.Float: FLOATNUMBER_RE,
     libcst.Integer: INTNUMBER_RE,
     libcst.Imaginary: IMAGNUMBER_RE,
-    libcst.Comment: libcst._nodes.whitespace.COMMENT_RE,
     libcst.SimpleWhitespace: libcst._nodes.whitespace.SIMPLE_WHITESPACE_RE,
 }.items():
     _strategy = st.builds(node_type, st.from_regex(pattern, fullmatch=True))
     st.register_type_strategy(node_type, _strategy)
+
+# type-ignore comments are special in the 3.8+ (typed) ast, so boost their chances)
+_comments = st.from_regex(libcst._nodes.whitespace.COMMENT_RE, fullmatch=True)
+st.register_type_strategy(
+    libcst.Comment, st.builds(libcst.Comment, _comments | st.just("# type: ignore")),
+)
 
 # `from_type()` has less laziness than other strategies, we we register for these
 # foundational node types *before* referring to them in other strategies.
@@ -53,6 +60,7 @@ REGISTERED = (
     [libcst.Assign, nonempty_seq(libcst.AssignTarget)],
     [libcst.Comparison, infer, nonempty_seq(libcst.ComparisonTarget)],
     [libcst.Decorator, st.from_type(libcst.Name) | st.from_type(libcst.Attribute)],
+    [libcst.EmptyLine, infer, infer, infer],
     [libcst.Global, nonempty_seq(libcst.NameItem)],
     [libcst.Import, nonempty_seq(libcst.ImportAlias)],
     [
@@ -64,6 +72,7 @@ REGISTERED = (
     [libcst.Nonlocal, nonempty_seq(libcst.NameItem)],
     [libcst.Set, nonempty_seq(Union[libcst.Element, libcst.StarredElement])],
     [libcst.Subscript, infer, nonempty_seq(libcst.SubscriptElement)],
+    [libcst.TrailingWhitespace, infer, infer],
     [libcst.With, nonempty_seq(libcst.WithItem)],
 )
 
@@ -99,6 +108,21 @@ st.register_type_strategy(
 )
 
 
+def record_targets(code: str) -> str:
+    # target larger inputs - the Hypothesis engine will do a multi-objective
+    # hill-climbing search using these scores to generate 'better' examples.
+    nodes = list(ast.walk(ast.parse(code)))
+    uniq_nodes = {type(n) for n in nodes}
+    instructions = list(dis.Bytecode(compile(code, "<string>", "exec")))
+    for value, label in [
+        (len(instructions), "(hypothesmith from_node) instructions in bytecode"),
+        (len(nodes), "(hypothesmith from_node) total number of ast nodes"),
+        (len(uniq_nodes), "(hypothesmith from_node) number of unique ast node types"),
+    ]:
+        target(float(value), label=label)
+    return code
+
+
 def compilable(code: str, mode: str = "exec") -> bool:
     # This is used as a filter on `from_node()`, but note that LibCST aspires to
     # disallow construction of a CST node which is converted to invalid code.
@@ -111,6 +135,9 @@ def compilable(code: str, mode: str = "exec") -> bool:
         return False
 
 
-def from_node(node: Type[libcst.CSTNode] = libcst.Module) -> st.SearchStrategy[str]:
+def from_node(
+    node: Type[libcst.CSTNode] = libcst.Module, *, auto_target: bool = True
+) -> st.SearchStrategy[str]:
     assert issubclass(node, libcst.CSTNode)
-    return st.from_type(node).map(lambda n: libcst.Module([n]).code).filter(compilable)
+    code = st.from_type(node).map(lambda n: libcst.Module([n]).code).filter(compilable)
+    return code.map(record_targets) if auto_target else code
