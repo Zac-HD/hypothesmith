@@ -7,7 +7,7 @@ import black
 import blib2to3
 import hypothesis.strategies as st
 import pytest
-from hypothesis import example, given, note, reject
+from hypothesis import example, given, reject
 
 import hypothesmith
 
@@ -51,7 +51,7 @@ def test_tokenize_round_trip_string(source_code):
 
 @pytest.mark.skipif(not hasattr(ast, "unparse"), reason="Can't test before available")
 @given(source_code=hypothesmith.from_grammar())
-def test_ast_unparse(source_code):
+def test_ast_unparse_from_grammar(source_code):
     first = ast.parse(source_code)
     unparsed = ast.unparse(first)
     second = ast.parse(unparsed)
@@ -67,12 +67,11 @@ def test_ast_unparse(source_code):
         is_pyi=st.booleans(),
     ),
 )
-def test_black_autoformatter(source_code, mode):
-    note("\n\n#####################################################\n\n")
-    note(source_code)
-    note("\n------------------------------------------------------\n")
+def test_black_autoformatter_from_grammar(source_code, mode):
     try:
-        note(black.format_str(source_code, mode=mode))
+        black.format_file_contents(source_code, fast=False, mode=mode)
+    except black.NothingChanged:
+        pass
     except blib2to3.pgen2.tokenize.TokenError:
         # Fails to tokenise e.g. "\\", though compile("\\", "<string>", "exec") works.
         # See https://github.com/psf/black/issues/1012

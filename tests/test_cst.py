@@ -1,13 +1,13 @@
 """Tests for the hypothesmith.cst module."""
 import ast
-import dis
 from inspect import isabstract
 from operator import attrgetter
 
+import black
 import hypothesis.strategies as st
 import libcst
 import pytest
-from hypothesis import given, note, target
+from hypothesis import given, note
 
 import hypothesmith
 
@@ -41,10 +41,26 @@ def test_source_code_from_libcst_node_type(node, data):
     note(code)
 
 
-@given(hypothesmith.from_node())
-def test_from_node_strategy(code):
-    # Use target() to drive towards larger inputs, which are more likely to have bugs
-    x = ast.dump(ast.parse(code))
-    n_instructions = float(len(list(dis.Bytecode(compile(code, "<string>", "exec")))))
-    target(n_instructions, label="number of instructions in bytecode")
-    target(float(len(x) - len("Module(body=[])")), label="length of dumped ast body")
+@pytest.mark.skipif(not hasattr(ast, "unparse"), reason="Can't test before available")
+@given(source_code=hypothesmith.from_node())
+def test_ast_unparse_from_nodes(source_code):
+    first = ast.parse(source_code)
+    unparsed = ast.unparse(first)
+    second = ast.parse(unparsed)
+    assert ast.dump(first) == ast.dump(second)
+
+
+@given(
+    source_code=hypothesmith.from_node(),
+    mode=st.builds(
+        black.FileMode,
+        line_length=st.just(88) | st.integers(0, 200),
+        string_normalization=st.booleans(),
+        is_pyi=st.booleans(),
+    ),
+)
+def test_black_autoformatter_from_nodes(source_code, mode):
+    try:
+        black.format_file_contents(source_code, fast=False, mode=mode)
+    except black.NothingChanged:
+        pass
