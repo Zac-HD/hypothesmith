@@ -138,6 +138,14 @@ def compilable(code: str, mode: str = "exec") -> bool:
 def from_node(
     node: Type[libcst.CSTNode] = libcst.Module, *, auto_target: bool = True
 ) -> st.SearchStrategy[str]:
+    """Generates syntactically-valid Python source code for a LibCST node type.
+
+    You can pass any subtype of `libcst.CSTNode`.  Alternatively, you can use
+    Hypothesis' built-in `from_type(node_type).map(lambda n: libcst.Module([n]).code`,
+    after Hypothesmith has registered the required strategies.  However, this does
+    not include automatic targeting and limitations of LibCST may lead to invalid
+    code being generated.
+    """
     assert issubclass(node, libcst.CSTNode)
     code = st.from_type(node).map(lambda n: libcst.Module([n]).code).filter(compilable)
     return code.map(record_targets) if auto_target else code
