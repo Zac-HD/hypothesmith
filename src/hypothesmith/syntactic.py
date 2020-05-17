@@ -113,6 +113,10 @@ class GrammarStrategy(LarkStrategy):
                     filename="<string>",
                     mode=COMPILE_MODES[symbol.name],
                 )
+            except SystemError:  # pragma: no cover
+                # Extra output to help track down a possible upstream issue
+                # https://github.com/Zac-HD/stdlib-property-tests/issues/14
+                print("".join(draw_state.result[count:]))
             except SyntaxError:
                 # Python's grammar doesn't actually fully describe the behaviour of the
                 # CPython parser and AST-post-processor, so we just filter out errors.

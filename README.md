@@ -56,6 +56,9 @@ code being generated.
 
 ## Changelog
 
+### 0.1.1 - 2020-05-17
+- Emit some debug info to help diagnose a possible upstream bug in CPython
+
 ### 0.1.0 - 2020-04-24
 - Added `auto_target=True` argument to the `from_node()` strategy.
 - Improved `from_node()` generation of comments and trailing whitespace.
