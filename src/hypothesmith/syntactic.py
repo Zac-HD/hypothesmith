@@ -113,10 +113,14 @@ class GrammarStrategy(LarkStrategy):
                     filename="<string>",
                     mode=COMPILE_MODES[symbol.name],
                 )
-            except SystemError:  # pragma: no cover
+            except SystemError as err:  # pragma: no cover
                 # Extra output to help track down a possible upstream issue
                 # https://github.com/Zac-HD/stdlib-property-tests/issues/14
-                print("".join(draw_state.result[count:]))
+                source_code = "".join(draw_state.result[count:])
+                raise Exception(
+                    f"unexpected error while attempting to compile {source_code!r}"
+                    f" in mode={COMPILE_MODES[symbol.name]}"
+                ) from err
             except SyntaxError:
                 # Python's grammar doesn't actually fully describe the behaviour of the
                 # CPython parser and AST-post-processor, so we just filter out errors.

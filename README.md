@@ -56,8 +56,11 @@ code being generated.
 
 ## Changelog
 
+### 0.1.2 - 2020-05-17
+- Emit *more* debug info to diagnose a `compile()` issue in CPython nightly
+
 ### 0.1.1 - 2020-05-17
-- Emit some debug info to help diagnose a possible upstream bug in CPython
+- Emit some debug info to help diagnose a possible upstream bug in CPython nightly
 
 ### 0.1.0 - 2020-04-24
 - Added `auto_target=True` argument to the `from_node()` strategy.
