@@ -47,6 +47,8 @@ not include automatic targeting and limitations of LibCST may lead to invalid
 code being generated.
 
 ## Notable bugs found with Hypothesmith
+- [BPO-40661, a segfault in the new parser](https://bugs.python.org/issue40661),
+  was given maximum priority and blocked the planned release of CPython 3.9 beta1.
 - [BPO-38953](https://bugs.python.org/issue38953) `tokenize` -> `untokenize` roundtrip bugs.
 - [`lib2to3` errors on \r in comment](https://github.com/psf/black/issues/970)
 - [Black fails on files ending in a backslash](https://github.com/psf/black/issues/1012)
