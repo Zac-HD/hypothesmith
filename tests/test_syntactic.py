@@ -57,6 +57,8 @@ def test_ast_unparse_from_grammar(source_code):
     assert ast.dump(first) == ast.dump(second)
 
 
+@example("\\", black.FileMode())
+@example("A#\r#", black.FileMode())
 @given(
     source_code=hypothesmith.from_grammar(),
     mode=st.builds(
@@ -68,13 +70,19 @@ def test_ast_unparse_from_grammar(source_code):
 )
 def test_black_autoformatter_from_grammar(source_code, mode):
     try:
-        black.format_file_contents(source_code, fast=False, mode=mode)
+        result = black.format_file_contents(source_code, fast=False, mode=mode)
     except black.NothingChanged:
         pass
     except blib2to3.pgen2.tokenize.TokenError:
         # Fails to tokenise e.g. "\\", though compile("\\", "<string>", "exec") works.
         # See https://github.com/psf/black/issues/1012
         reject()
+    except black.InvalidInput:
+        # e.g. "A#\r#", see https://github.com/psf/black/issues/970
+        reject()
+    else:
+        with pytest.raises(black.NothingChanged):
+            black.format_file_contents(result, fast=False, mode=mode)
 
 
 @given(source_code=hypothesmith.from_grammar("eval_input"))

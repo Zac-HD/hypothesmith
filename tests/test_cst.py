@@ -50,6 +50,8 @@ def test_ast_unparse_from_nodes(source_code):
     assert ast.dump(first) == ast.dump(second)
 
 
+@pytest.mark.xfail
+@example("A\u2592", black.FileMode())
 @given(
     source_code=hypothesmith.from_node(),
     mode=st.builds(
@@ -61,9 +63,17 @@ def test_ast_unparse_from_nodes(source_code):
 )
 def test_black_autoformatter_from_nodes(source_code, mode):
     try:
-        black.format_file_contents(source_code, fast=False, mode=mode)
+        result = black.format_file_contents(source_code, fast=False, mode=mode)
     except black.NothingChanged:
         pass
+    else:
+        with pytest.raises(black.NothingChanged):
+            black.format_file_contents(result, fast=False, mode=mode)
+
+
+@given(source_code=hypothesmith.from_node())
+def test_from_node_always_compilable(source_code):
+    compile(source_code, "<string>", "exec")
 
 
 @example("\x00")
