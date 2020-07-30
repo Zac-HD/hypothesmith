@@ -5,6 +5,7 @@ import tokenize
 
 import black
 import blib2to3
+import parso
 import pytest
 from hypothesis import example, given, reject, strategies as st
 
@@ -99,3 +100,9 @@ def test_generation_without_targeting(source_code):
 def test_names_are_all_identifiers(name):
     assert name.isidentifier()
     name.encode()  # should be UTF-8 encodable
+
+
+@given(source_code=hypothesmith.from_grammar())
+def test_parso_from_node(source_code):
+    result = parso.parse(source_code).get_code()
+    assert source_code == result

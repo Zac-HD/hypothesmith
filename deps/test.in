@@ -1,5 +1,6 @@
 # Top-level dependencies for `tox -e test`
 black
+parso
 pytest
 pytest-cov
 pytest-xdist

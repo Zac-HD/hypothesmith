@@ -5,6 +5,7 @@ from operator import attrgetter
 
 import black
 import libcst
+import parso
 import pytest
 from hypothesis import example, given, note, strategies as st
 
@@ -80,3 +81,9 @@ def test_from_node_always_compilable(source_code):
 @given(st.text())
 def test_compilable_never_raises(s):
     compilable(s)
+
+
+@given(source_code=hypothesmith.from_node())
+def test_parso_from_node(source_code):
+    result = parso.parse(source_code).get_code()
+    assert source_code == result

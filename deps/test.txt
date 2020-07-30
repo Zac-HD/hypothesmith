@@ -21,6 +21,7 @@ libcst==0.3.8             # via hypothesmith (setup.py)
 more-itertools==8.4.0     # via pytest
 mypy-extensions==0.4.3    # via typing-inspect
 packaging==20.4           # via pytest
+parso==0.7.1              # via -r deps/test.in
 pathspec==0.8.0           # via black
 pluggy==0.13.1            # via pytest
 py==1.9.0                 # via pytest, pytest-forked
