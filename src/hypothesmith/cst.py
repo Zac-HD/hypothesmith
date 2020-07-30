@@ -44,6 +44,17 @@ st.register_type_strategy(
     libcst.SimpleString, st.builds(libcst.SimpleString, st.text().map(repr))
 )
 
+# Ensure that ImportAlias uses Attribute nodes composed only of Name nodes.
+names = st.from_type(libcst.Name)
+name_only_attributes = st.one_of(
+    names,
+    st.builds(libcst.Attribute, names, names),
+    st.builds(libcst.Attribute, st.builds(libcst.Attribute, names, names), names),
+)
+st.register_type_strategy(
+    libcst.ImportAlias, st.builds(libcst.ImportAlias, name_only_attributes)
+)
+
 
 def nonempty_seq(*node: Type[libcst.CSTNode]) -> st.SearchStrategy:
     return st.lists(st.one_of(*map(st.from_type, node)), min_size=1)

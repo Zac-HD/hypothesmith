@@ -1,12 +1,7 @@
 """Hypothesis strategies for generating Python source code, somewhat like CSmith."""
 
+from hypothesmith.cst import from_node
 from hypothesmith.syntactic import from_grammar
 
-try:
-    from hypothesmith.cst import from_node
-except Exception:  # pragma: no cover  # noqa
-    # allows use on Python 3.9 before libcst supports that version
-    pass
-
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __all__ = ["from_grammar", "from_node"]
