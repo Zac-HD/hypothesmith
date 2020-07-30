@@ -4,7 +4,7 @@ from hypothesmith.syntactic import from_grammar
 
 try:
     from hypothesmith.cst import from_node
-except Exception:  # pragma: no cover
+except Exception:  # pragma: no cover  # noqa
     # allows use on Python 3.9 before libcst supports that version
     pass
 

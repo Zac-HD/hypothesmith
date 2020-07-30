@@ -4,10 +4,9 @@ from inspect import isabstract
 from operator import attrgetter
 
 import black
-import hypothesis.strategies as st
 import libcst
 import pytest
-from hypothesis import example, given, note
+from hypothesis import example, given, note, strategies as st
 
 import hypothesmith
 from hypothesmith.cst import compilable

@@ -8,8 +8,7 @@ import urllib.request
 from functools import lru_cache
 from pathlib import Path
 
-import hypothesis.strategies as st
-from hypothesis import assume
+from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
 from lark import Lark
 from lark.indenter import Indenter

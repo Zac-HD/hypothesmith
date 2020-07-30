@@ -1,4 +1,4 @@
-"""It's a setup.py"""
+"""Packaging config for Hypothesmith."""
 
 import os
 

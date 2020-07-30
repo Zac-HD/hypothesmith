@@ -8,16 +8,15 @@ thanks to Tolkein for the name of this module.
 import ast
 import dis
 from inspect import getfullargspec
-from tokenize import (  # type: ignore
+from tokenize import (
     Floatnumber as FLOATNUMBER_RE,
     Imagnumber as IMAGNUMBER_RE,
     Intnumber as INTNUMBER_RE,
 )
-from typing import Type, Union
+from typing import Type
 
-import hypothesis.strategies as st
 import libcst
-from hypothesis import infer, target
+from hypothesis import infer, strategies as st, target
 
 from hypothesmith.syntactic import identifiers
 
@@ -46,8 +45,8 @@ st.register_type_strategy(
 )
 
 
-def nonempty_seq(node: Type[libcst.CSTNode]) -> st.SearchStrategy:
-    return st.lists(st.from_type(node), min_size=1)
+def nonempty_seq(*node: Type[libcst.CSTNode]) -> st.SearchStrategy:
+    return st.lists(st.one_of(*map(st.from_type, node)), min_size=1)
 
 
 # There are around 150 concrete types of CST nodes.  Delightfully, libCST uses
@@ -70,7 +69,7 @@ REGISTERED = (
     ],
     [libcst.NamedExpr, st.from_type(libcst.Name)],
     [libcst.Nonlocal, nonempty_seq(libcst.NameItem)],
-    [libcst.Set, nonempty_seq(Union[libcst.Element, libcst.StarredElement])],
+    [libcst.Set, nonempty_seq(libcst.Element, libcst.StarredElement)],
     [libcst.Subscript, infer, nonempty_seq(libcst.SubscriptElement)],
     [libcst.TrailingWhitespace, infer, infer],
     [libcst.With, nonempty_seq(libcst.WithItem)],
@@ -138,7 +137,7 @@ def compilable(code: str, mode: str = "exec") -> bool:
 def from_node(
     node: Type[libcst.CSTNode] = libcst.Module, *, auto_target: bool = True
 ) -> st.SearchStrategy[str]:
-    """Generates syntactically-valid Python source code for a LibCST node type.
+    """Generate syntactically-valid Python source code for a LibCST node type.
 
     You can pass any subtype of `libcst.CSTNode`.  Alternatively, you can use
     Hypothesis' built-in `from_type(node_type).map(lambda n: libcst.Module([n]).code`,

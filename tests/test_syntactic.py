@@ -5,9 +5,8 @@ import tokenize
 
 import black
 import blib2to3
-import hypothesis.strategies as st
 import pytest
-from hypothesis import example, given, reject
+from hypothesis import example, given, reject, strategies as st
 
 import hypothesmith
 
