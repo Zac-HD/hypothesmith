@@ -1,0 +1,27 @@
+# Top-level dependencies for `tox -e bughunt`
+
+# Formatters
+black
+pyupgrade
+pyformat
+autoflake
+pyformat
+yapf
+
+# Linters
+flake8
+flake8-bugbear
+flake8-builtins
+flake8-comprehensions
+flake8-docstrings
+flake8-print
+pep8-naming
+pylint
+mypy
+vulture
+bandit
+
+# Parsers and CST tools
+astroid
+parso
+libcst
