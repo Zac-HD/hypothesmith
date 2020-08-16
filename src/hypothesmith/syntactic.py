@@ -47,7 +47,7 @@ def identifiers() -> st.SearchStrategy[str]:
         if ("_" + c).isidentifier():
             _subs.append(c)  # e.g. "1"
     pattern = "[{}][{}]*".format(re.escape("".join(_lead)), re.escape("".join(_subs)))
-    return st.from_regex(pattern, fullmatch=True)
+    return st.from_regex(pattern, fullmatch=True).filter(str.isidentifier)
 
 
 class PythonIndenter(Indenter):
@@ -83,7 +83,7 @@ class GrammarStrategy(LarkStrategy):
             k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
             for k, v in self.terminal_strategies.items()  # type: ignore
         }
-        self.auto_target = auto_target
+        self.auto_target = auto_target and start != "single_input"
 
     def do_draw(self, data):  # type: ignore
         result = super().do_draw(data)

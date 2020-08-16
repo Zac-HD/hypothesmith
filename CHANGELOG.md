@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.1.4 - 2020-08-16
+- Improve handling of identifiers
+- Fix internal error in `from_grammar("single_input")`
+
 ### 0.1.3 - 2020-07-30
 - Update to latest versions of LibCST and Hypothesis, for Python 3.9 support
 
