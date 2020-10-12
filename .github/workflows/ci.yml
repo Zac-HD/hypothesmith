@@ -16,17 +16,19 @@ jobs:
       with:
         python-version: 3.8
     - name: Install dependencies
-      run: python -m pip install --upgrade pip setuptools tox
+      run: |
+        python -m pip install --upgrade pip setuptools tox
+        python -m tox --notest --recreate -e check
     - name: Run checks
       run: |
-        python -m tox --recreate -e check
+        python -m tox -e check
         git diff --exit-code
 
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, "3.9-dev"]
+        python-version: [3.6, 3.7, 3.8, 3.9]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -35,9 +37,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: python -m pip install --upgrade pip setuptools tox
+      run: |
+        python -m pip install --upgrade pip setuptools tox
+        python -m tox --notest --recreate -e test
     - name: Run tests
-      run: python -m tox --recreate -e test -- -n auto
+      run: python -m tox -e test -- -n auto
 
   release:
     runs-on: ubuntu-latest
