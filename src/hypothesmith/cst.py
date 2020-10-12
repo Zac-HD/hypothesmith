@@ -34,7 +34,7 @@ for node_type, pattern in {
 # type-ignore comments are special in the 3.8+ (typed) ast, so boost their chances)
 _comments = st.from_regex(libcst._nodes.whitespace.COMMENT_RE, fullmatch=True)
 st.register_type_strategy(
-    libcst.Comment, st.builds(libcst.Comment, _comments | st.just("# type: ignore")),
+    libcst.Comment, st.builds(libcst.Comment, _comments | st.just("# type: ignore"))
 )
 
 # `from_type()` has less laziness than other strategies, we we register for these
