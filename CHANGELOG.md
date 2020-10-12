@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.1.5 - 2020-10-12
+- Emit additional debug info when Python fails to compile a string
+
 ### 0.1.4 - 2020-08-16
 - Improve handling of identifiers
 - Fix internal error in `from_grammar("single_input")`

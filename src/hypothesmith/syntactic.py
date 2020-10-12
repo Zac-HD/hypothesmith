@@ -117,8 +117,8 @@ class GrammarStrategy(LarkStrategy):
                 # https://github.com/Zac-HD/stdlib-property-tests/issues/14
                 source_code = "".join(draw_state.result[count:])
                 raise Exception(
-                    f"unexpected error while attempting to compile {source_code!r}"
-                    f" in mode={COMPILE_MODES[symbol.name]}"
+                    "unexpected error while attempting to compile "
+                    f"{ascii(source_code)!r} in mode={COMPILE_MODES[symbol.name]}"
                 ) from err
             except SyntaxError:
                 # Python's grammar doesn't actually fully describe the behaviour of the
