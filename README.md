@@ -50,6 +50,7 @@ code being generated.
 - [BPO-40661, a segfault in the new parser](https://bugs.python.org/issue40661),
   was given maximum priority and blocked the planned release of CPython 3.9 beta1.
 - [BPO-38953](https://bugs.python.org/issue38953) `tokenize` -> `untokenize` roundtrip bugs.
+- [BPO-42218](https://bugs.python.org/issue42218) mishandled error case in new PEG parser.
 - [`lib2to3` errors on \r in comment](https://github.com/psf/black/issues/970)
 - [Black fails on files ending in a backslash](https://github.com/psf/black/issues/1012)
 - [At least three round-trip bugs in LibCST](https://github.com/Instagram/LibCST#acknowledgements)
