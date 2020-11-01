@@ -112,18 +112,19 @@ class GrammarStrategy(LarkStrategy):
                     filename="<string>",
                     mode=COMPILE_MODES[symbol.name],
                 )
-            except SystemError as err:  # pragma: no cover
-                # Extra output to help track down a possible upstream issue
-                # https://github.com/Zac-HD/stdlib-property-tests/issues/14
-                source_code = "".join(draw_state.result[count:])
-                raise Exception(
-                    "unexpected error while attempting to compile "
-                    f"{ascii(source_code)!r} in mode={COMPILE_MODES[symbol.name]}"
-                ) from err
             except SyntaxError:
                 # Python's grammar doesn't actually fully describe the behaviour of the
                 # CPython parser and AST-post-processor, so we just filter out errors.
                 assume(False)
+            except Exception as err:  # pragma: no cover
+                # Extra output to help track down a possible upstream issue
+                # https://github.com/Zac-HD/stdlib-property-tests/issues/14
+                source_code = ascii("".join(draw_state.result[count:]))
+                raise type(err)(
+                    f"compile({source_code}, '<string>', "
+                    f"{COMPILE_MODES[symbol.name]!r}) "
+                    f"raised {type(err).__name__}: {str(err)}"
+                ) from err
 
     def gen_ignore(self, data, draw_state):  # type: ignore
         # Set a consistent 1/4 chance of generating any ignored tokens (comments,

@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.1.6 - 2020-11-01
+- Improved error messages from internal compiler errors *again*
+  ([BPO-42218](https://bugs.python.org/issue42218) will be fixed in Python 3.9.1)
+- Bumped Hypothesis requirement to version 5.39 or later
+
 ### 0.1.5 - 2020-10-12
 - Emit additional debug info when Python fails to compile a string
 
