@@ -117,8 +117,14 @@ class GrammarStrategy(LarkStrategy):
                 # CPython parser and AST-post-processor, so we just filter out errors.
                 assume(False)
             except Exception as err:  # pragma: no cover
-                # Extra output to help track down a possible upstream issue
-                # https://github.com/Zac-HD/stdlib-property-tests/issues/14
+                # Attempting to compile almost-valid strings has triggered a wide range
+                # of bizzare errors in CPython, especially with the new PEG parser,
+                # and so we maintain this extra clause to ensure that we get a decent
+                # error message out of it.
+                if isinstance(err, SystemError) and sys.version_info[:3] == (3, 9, 0):
+                    # We've triggered https://bugs.python.org/issue42218 - it's been
+                    # fixed upstream, so we'll treat it as if it were a SyntaxError.
+                    assume(False)
                 source_code = ascii("".join(draw_state.result[count:]))
                 raise type(err)(
                     f"compile({source_code}, '<string>', "
@@ -129,6 +135,8 @@ class GrammarStrategy(LarkStrategy):
     def gen_ignore(self, data, draw_state):  # type: ignore
         # Set a consistent 1/4 chance of generating any ignored tokens (comments,
         # whitespace, line-continuations) as part of this draw.
+        # See https://github.com/HypothesisWorks/hypothesis/issues/2643 for plans
+        # to do more sophisticated swarm testing for grammars, upstream.
         if data.draw(
             st.shared(
                 st.sampled_from([False, True, False, False]),

@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.1.7 - 2020-11-15
+- Adds a workaround for [BPO-42218](https://bugs.python.org/issue42218)
+- Bumped Hypothesis requirement to version 5.41 or later (better internal error messages)
+- Added `MANIFEST.in` so the sdist includes license, tests, etc.
+
 ### 0.1.6 - 2020-11-01
 - Improved error messages from internal compiler errors *again*
   ([BPO-42218](https://bugs.python.org/issue42218) will be fixed in Python 3.9.1)
