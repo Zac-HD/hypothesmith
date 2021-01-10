@@ -79,7 +79,13 @@ REGISTERED = (
         nonempty_seq(libcst.ImportAlias),
     ],
     [libcst.NamedExpr, st.from_type(libcst.Name)],
-    [libcst.Nonlocal, nonempty_seq(libcst.NameItem)],
+    [
+        libcst.Nonlocal,
+        nonempty_seq(libcst.NameItem).map(
+            lambda names: names[:-1]
+            + [names[-1].with_changes(comma=libcst.MaybeSentinel.DEFAULT)]
+        ),
+    ],
     [libcst.Set, nonempty_seq(libcst.Element, libcst.StarredElement)],
     [libcst.Subscript, infer, nonempty_seq(libcst.SubscriptElement)],
     [libcst.TrailingWhitespace, infer, infer],
