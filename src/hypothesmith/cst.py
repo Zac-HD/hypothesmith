@@ -7,7 +7,7 @@ thanks to Tolkein for the name of this module.
 
 import ast
 import dis
-from inspect import getfullargspec
+from inspect import getfullargspec, isabstract
 from tokenize import (
     Floatnumber as FLOATNUMBER_RE,
     Imagnumber as IMAGNUMBER_RE,
@@ -16,7 +16,10 @@ from tokenize import (
 from typing import Type
 
 import libcst
-from hypothesis import infer, strategies as st, target
+from hypothesis import assume, infer, strategies as st, target
+from hypothesis.strategies._internal.types import _global_type_lookup
+from libcst._nodes.expression import ExpressionPosition
+from libcst._nodes.statement import _INDENT_WHITESPACE_RE
 
 from hypothesmith.syntactic import identifiers
 
@@ -71,6 +74,7 @@ nonempty_whitespace = st.builds(
 REGISTERED = (
     [libcst.Asynchronous, nonempty_whitespace],
     [libcst.AsName, st.from_type(libcst.Name)],
+    [libcst.AnnAssign, infer, infer, infer],
     [libcst.Assign, nonempty_seq(libcst.AssignTarget)],
     [libcst.Comparison, infer, nonempty_seq(libcst.ComparisonTarget)],
     [libcst.Decorator, st.from_type(libcst.Name) | st.from_type(libcst.Attribute)],
@@ -82,6 +86,13 @@ REGISTERED = (
         st.from_type(libcst.Name) | st.from_type(libcst.Attribute),
         nonempty_seq(libcst.ImportAlias),
     ],
+    [
+        libcst.IndentedBlock,
+        infer,
+        infer,
+        st.from_regex(_INDENT_WHITESPACE_RE, fullmatch=True),
+    ],
+    [libcst.IsNot, infer, nonempty_whitespace, infer],
     [libcst.NamedExpr, st.from_type(libcst.Name)],
     [
         libcst.Nonlocal,
@@ -90,11 +101,21 @@ REGISTERED = (
             + [names[-1].with_changes(comma=libcst.MaybeSentinel.DEFAULT)]
         ),
     ],
+    [libcst.NotEqual, st.just("!=")],
+    [libcst.NotIn, infer, nonempty_whitespace, infer],
     [libcst.Set, nonempty_seq(libcst.Element, libcst.StarredElement)],
     [libcst.Subscript, infer, nonempty_seq(libcst.SubscriptElement)],
     [libcst.TrailingWhitespace, infer, infer],
     [libcst.With, nonempty_seq(libcst.WithItem)],
 )
+
+
+@st.composite
+def builds_filtering(draw, t, **kwargs):  # type: ignore
+    try:
+        return draw(st.builds(t, **kwargs))
+    except libcst.CSTValidationError:
+        assume(False)
 
 
 # This is where the magic happens: teach `st.from_type` to generate each node type
@@ -105,7 +126,7 @@ for node_type, *strats in REGISTERED:
     # Mostly this will consist of ensuring that parens remain balanced.
     args = [name for name in getfullargspec(node_type).args if name != "self"]
     kwargs = dict(zip(args, strats))
-    st.register_type_strategy(node_type, st.builds(node_type, **kwargs))
+    st.register_type_strategy(node_type, builds_filtering(node_type, **kwargs))
 
 # We have special handling for `Try` nodes, because there are two options.
 # If a Try node has no `except` clause, it *must* have a `finally` clause and
@@ -118,7 +139,7 @@ st.register_type_strategy(
         libcst.Try,
         body=infer,
         handlers=st.lists(
-            st.from_type(libcst.ExceptHandler),
+            st.deferred(lambda: st.from_type(libcst.ExceptHandler)),
             min_size=1,
             unique_by=lambda caught: caught.type,
         ),
@@ -145,6 +166,62 @@ st.register_type_strategy(
         semicolon=infer,
     ),
 )
+
+# either posargs, kwargs, or **args, but only one at a time
+st.register_type_strategy(
+    libcst.Arg,
+    st.builds(
+        libcst.Arg,
+        value=infer,
+        comma=infer,
+        star=infer,
+        whitespace_after_star=infer,
+        whitespace_after_arg=infer,
+    )
+    | st.builds(
+        libcst.Arg,
+        value=infer,
+        keyword=st.from_type(libcst.Name),
+        equal=st.from_type(libcst.AssignEqual),
+        comma=infer,
+        star=st.just(""),
+        whitespace_after_arg=infer,
+    ),
+)
+
+
+@st.composite
+def boolean_op_with_whitespace(draw):  # type: ignore
+    # for BooleanOperation, some expressions require whitespace before
+    # and/or after e.g. a or b whereas (1)or(2) is OK.
+    left = draw(st.from_type(libcst.BaseExpression))
+    right = draw(st.from_type(libcst.BaseExpression))
+    op = draw(st.from_type(libcst.BaseBooleanOp))
+    if op.whitespace_before.empty and not left._safe_to_use_with_word_operator(
+        ExpressionPosition.LEFT
+    ):  # pragma: no cover
+        op = op.with_changes(whitespace_before=libcst.SimpleWhitespace(" "))
+    if op.whitespace_after.empty and not right._safe_to_use_with_word_operator(
+        ExpressionPosition.RIGHT
+    ):  # pragma: no cover
+        op = op.with_changes(whitespace_after=libcst.SimpleWhitespace(" "))
+    return libcst.BooleanOperation(left, op, right)
+
+
+st.register_type_strategy(libcst.BooleanOperation, boolean_op_with_whitespace())
+
+
+# TODO: this works pretty well, but it's also a pretty poor trick for performance.
+#       Instead of filtering, we should continue expanding the specific node
+#       strategies as used above in order to generate valid things by construction.
+for t in vars(libcst).values():
+    if (
+        isinstance(t, type)
+        and not isabstract(t)
+        and issubclass(t, libcst.CSTNode)
+        and t not in _global_type_lookup
+    ):
+        st.register_type_strategy(t, builds_filtering(t))
 
 
 def record_targets(code: str) -> str:
