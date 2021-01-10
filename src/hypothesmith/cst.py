@@ -65,7 +65,11 @@ def nonempty_seq(*node: Type[libcst.CSTNode]) -> st.SearchStrategy:
 # inference to provide most of our arguments for us.
 # However, in some cases we want to either restrict arguments (e.g. libcst.Name),
 # or supply something nastier than the default argument (e.g. libcst.SimpleWhitespace)
+nonempty_whitespace = st.builds(
+    libcst.SimpleWhitespace, st.from_regex(" +", fullmatch=True)
+)
 REGISTERED = (
+    [libcst.Asynchronous, nonempty_whitespace],
     [libcst.AsName, st.from_type(libcst.Name)],
     [libcst.Assign, nonempty_seq(libcst.AssignTarget)],
     [libcst.Comparison, infer, nonempty_seq(libcst.ComparisonTarget)],
@@ -120,6 +124,25 @@ st.register_type_strategy(
         ),
         orelse=infer,
         finalbody=infer,
+    ),
+)
+
+# Assert can either have a comma and message, or neither
+st.register_type_strategy(
+    libcst.Assert,
+    st.builds(
+        libcst.Assert,
+        test=infer,
+        whitespace_after_assert=nonempty_whitespace,
+        semicolon=infer,
+    )
+    | st.builds(
+        libcst.Assert,
+        test=infer,
+        whitespace_after_assert=nonempty_whitespace,
+        comma=st.from_type(libcst.Comma),
+        msg=st.from_type(libcst.BaseExpression),
+        semicolon=infer,
     ),
 )
 
