@@ -76,9 +76,12 @@ REGISTERED = (
     [libcst.AsName, st.from_type(libcst.Name)],
     [libcst.AnnAssign, infer, infer, infer],
     [libcst.Assign, nonempty_seq(libcst.AssignTarget)],
+    [libcst.Await, infer, st.just(()), st.just(()), nonempty_whitespace],
+    [libcst.Attribute, infer, infer, infer],
     [libcst.Comparison, infer, nonempty_seq(libcst.ComparisonTarget)],
     [libcst.Decorator, st.from_type(libcst.Name) | st.from_type(libcst.Attribute)],
     [libcst.EmptyLine, infer, infer, infer],
+    [libcst.ExceptHandler, infer, infer, infer, infer, nonempty_whitespace, infer],
     [libcst.Global, nonempty_seq(libcst.NameItem)],
     [libcst.Import, nonempty_seq(libcst.ImportAlias)],
     [
@@ -209,6 +212,10 @@ def boolean_op_with_whitespace(draw):  # type: ignore
 
 
 st.register_type_strategy(libcst.BooleanOperation, boolean_op_with_whitespace())
+
+st.register_type_strategy(
+    libcst.ComparisonTarget, builds_filtering(libcst.ComparisonTarget)
+)
 
 
 # TODO: this works pretty well, but it's also a pretty poor trick for performance.
