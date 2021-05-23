@@ -103,6 +103,6 @@ def test_names_are_all_identifiers(name):
 
 
 @given(source_code=hypothesmith.from_grammar())
-def test_parso_from_node(source_code):
+def test_parso_from_grammar(source_code):
     result = parso.parse(source_code).get_code()
     assert source_code == result
