@@ -135,6 +135,7 @@ for node_type, *strats in REGISTERED:
 # If a Try node has no `except` clause, it *must* have a `finally` clause and
 # *must not* have an `else` clause.  With one or more except clauses, it may
 # have an else and/or a finally, or neither.
+# The .map() ensures that any bare-`except:` clauses are ordered last.
 st.register_type_strategy(
     libcst.Try,
     st.builds(libcst.Try, finalbody=st.from_type(libcst.Finally))
@@ -145,7 +146,7 @@ st.register_type_strategy(
             st.deferred(lambda: st.from_type(libcst.ExceptHandler)),
             min_size=1,
             unique_by=lambda caught: caught.type,
-        ),
+        ).map(lambda xs: sorted(xs, key=lambda x: x.type is None)),
         orelse=infer,
         finalbody=infer,
     ),
