@@ -127,9 +127,15 @@ class GrammarStrategy(LarkStrategy):
                 # of bizzare errors in CPython, especially with the new PEG parser,
                 # and so we maintain this extra clause to ensure that we get a decent
                 # error message out of it.
-                if isinstance(err, SystemError) and sys.version_info[:3] == (3, 9, 0):
+                if isinstance(err, SystemError) and (
+                    sys.version_info[:3] == (3, 9, 0)
+                    or sys.version_info[:3] >= (3, 9, 8)
+                    and str(err) == "Negative size passed to PyUnicode_New"
+                ):
                     # We've triggered https://bugs.python.org/issue42218 - it's been
                     # fixed upstream, so we'll treat it as if it were a SyntaxError.
+                    # Or the new https://bugs.python.org/issue45738 which makes me
+                    # wish CPython would start running proptests in CI already.
                     assume(False)
                 source_code = ascii("".join(draw_state.result[count:]))
                 raise type(err)(

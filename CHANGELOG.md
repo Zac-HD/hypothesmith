@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.2.0 - 2021-11-27
+- More efficient generation of Python identifiers
+- Workaround for [CPython parser bug in 3.9.8](https://bugs.python.org/issue45738) (#16)
+  Yes, *yet another* one - still, that's why `hypothesmith` exists...
+
 ### 0.1.9 - 2021-08-19
 - Fixed rare internal error when `from_node()` generated misplaced `except:` clauses
 
