@@ -7,6 +7,7 @@ import black
 import libcst
 import parso
 import pytest
+import tokenize_rt
 from hypothesis import example, given, note, strategies as st
 
 import hypothesmith
@@ -87,3 +88,10 @@ def test_compilable_never_raises(s):
 def test_parso_from_node(source_code):
     result = parso.parse(source_code).get_code()
     assert source_code == result
+
+
+@given(source_code=hypothesmith.from_node())
+def test_tokenize_rt_from_node(source_code):
+    tokens = tokenize_rt.src_to_tokens(src=source_code)
+    output = tokenize_rt.tokens_to_src(tokens=tokens)
+    assert source_code == output
