@@ -7,7 +7,7 @@ You can even keep the shiny pieces when - not if - it breaks.
 Get it today with [`pip install hypothesmith`](https://pypi.org/project/hypothesmith/),
 or by cloning [the GitHub repo](https://github.com/Zac-HD/hypothesmith).
 
-You can run the tests, such as they are, with `tox` on Python 3.6 or later.
+You can run the tests, such as they are, with `tox` on Python 3.7 or later.
 Use `tox -va` to see what environments are available.
 
 ## Usage
