@@ -4,3 +4,4 @@ parso
 pytest
 pytest-cov
 pytest-xdist
+tokenize-rt

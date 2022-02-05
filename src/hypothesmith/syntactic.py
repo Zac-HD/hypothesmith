@@ -6,6 +6,7 @@ import sys
 import urllib.request
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
@@ -39,7 +40,7 @@ def _chars_to_regex_set(s: list) -> str:
     spans = tuple((ord(c), ord(c)) for c in s)
     return "".join(
         chr(a) if a == b else f"{chr(a)}-{chr(b)}"
-        for a, b in _union_intervals(spans, spans)
+        for a, b in _union_intervals(spans, spans)  # type: ignore
     )
 
 
@@ -84,10 +85,10 @@ class GrammarStrategy(LarkStrategy):
             PythonIndenter.DEDENT_type: st.just(""),
             "NAME": identifiers(),
         }
-        super().__init__(grammar, start, explicit_strategies)
+        super().__init__(grammar, start, explicit_strategies)  # type: ignore
         self.terminal_strategies = {
             k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
-            for k, v in self.terminal_strategies.items()  # type: ignore
+            for k, v in self.terminal_strategies.items()
         }
         self.auto_target = auto_target and start != "single_input"
 
@@ -181,5 +182,10 @@ def from_grammar(
     """
     assert start in {"single_input", "file_input", "eval_input"}
     assert isinstance(auto_target, bool)
-    grammar = Lark(lark_grammar, parser="lalr", postlex=PythonIndenter(), start=start)
+    grammar = Lark(
+        lark_grammar,
+        parser="lalr",
+        postlex=PythonIndenter(),  # type: ignore
+        start=start,
+    )
     return GrammarStrategy(grammar, start, auto_target)

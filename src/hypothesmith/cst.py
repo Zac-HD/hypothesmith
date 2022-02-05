@@ -13,7 +13,7 @@ from tokenize import (
     Imagnumber as IMAGNUMBER_RE,
     Intnumber as INTNUMBER_RE,
 )
-from typing import Type
+from typing import List, Type
 
 import libcst
 from hypothesis import assume, infer, strategies as st, target
@@ -59,8 +59,11 @@ st.register_type_strategy(
 )
 
 
-def nonempty_seq(*node: Type[libcst.CSTNode]) -> st.SearchStrategy:
-    return st.lists(st.one_of(*map(st.from_type, node)), min_size=1)
+def nonempty_seq(
+    *node: Type[libcst.CSTNode],
+) -> st.SearchStrategy[List[libcst.CSTNode]]:
+    node_strategies = [st.from_type(nt) for nt in node]
+    return st.lists(st.one_of(node_strategies), min_size=1)
 
 
 # There are around 150 concrete types of CST nodes.  Delightfully, libCST uses
@@ -123,7 +126,7 @@ def builds_filtering(draw, t, **kwargs):  # type: ignore
 
 
 # This is where the magic happens: teach `st.from_type` to generate each node type
-for node_type, *strats in REGISTERED:
+for node_type, *strats in REGISTERED:  # type: ignore
     # TODO: once everything else is working, come back here and use `infer` for
     # all arguments without an explicit strategy - inference is more "interesting"
     # than just using the default argument... in the proverbial sense.
@@ -146,7 +149,7 @@ st.register_type_strategy(
         handlers=st.lists(
             st.deferred(lambda: st.from_type(libcst.ExceptHandler)),
             min_size=1,
-            unique_by=lambda caught: caught.type,
+            unique_by=lambda caught: caught.type,  # type: ignore
         ).map(lambda xs: sorted(xs, key=lambda x: x.type is None)),
         orelse=infer,
         finalbody=infer,
@@ -272,5 +275,5 @@ def from_node(
     code being generated.
     """
     assert issubclass(node, libcst.CSTNode)
-    code = st.from_type(node).map(lambda n: libcst.Module([n]).code).filter(compilable)
+    code = st.from_type(node).map(libcst.Module([]).code_for_node).filter(compilable)
     return code.map(record_targets) if auto_target else code
