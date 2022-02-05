@@ -126,7 +126,7 @@ def builds_filtering(draw, t, **kwargs):  # type: ignore
 
 
 # This is where the magic happens: teach `st.from_type` to generate each node type
-for node_type, *strats in REGISTERED:  # type: ignore
+for node_type, *strats in REGISTERED:
     # TODO: once everything else is working, come back here and use `infer` for
     # all arguments without an explicit strategy - inference is more "interesting"
     # than just using the default argument... in the proverbial sense.
@@ -149,7 +149,8 @@ st.register_type_strategy(
         handlers=st.lists(
             st.deferred(lambda: st.from_type(libcst.ExceptHandler)),
             min_size=1,
-            unique_by=lambda caught: caught.type,  # type: ignore
+            # Should be AST of type really, but this works well enough for now.
+            unique_by=lambda caught: caught.type,
         ).map(lambda xs: sorted(xs, key=lambda x: x.type is None)),
         orelse=infer,
         finalbody=infer,
