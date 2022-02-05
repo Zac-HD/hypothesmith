@@ -32,7 +32,7 @@ setuptools.setup(
     license="MPL 2.0",
     description="Hypothesis strategies for generating Python programs, something like CSmith",
     zip_safe=False,
-    install_requires=["hypothesis>=5.41.0", "lark-parser>=0.7.2", "libcst>=0.3.8"],
+    install_requires=["hypothesis>=6.29.0", "lark-parser>=0.12.0", "libcst>=0.4.1"],
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 4 - Beta",
