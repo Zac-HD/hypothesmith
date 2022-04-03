@@ -107,8 +107,18 @@ REGISTERED = (
     [libcst.NotEqual, st.just("!=")],
     [libcst.NotIn, infer, nonempty_whitespace, infer],
     [libcst.Set, nonempty_seq(libcst.Element, libcst.StarredElement)],
-    [libcst.Tuple, st.lists(st.one_of(*map(st.from_type, (libcst.Element, libcst.StarredElement))))],
-    [libcst.List, st.lists(st.one_of(*map(st.from_type, (libcst.Element, libcst.StarredElement))))],
+    [
+        libcst.Tuple,
+        st.lists(
+            st.one_of(*map(st.from_type, (libcst.Element, libcst.StarredElement)))
+        ),
+    ],
+    [
+        libcst.List,
+        st.lists(
+            st.one_of(*map(st.from_type, (libcst.Element, libcst.StarredElement)))
+        ),
+    ],
     [libcst.Subscript, infer, nonempty_seq(libcst.SubscriptElement)],
     [libcst.TrailingWhitespace, infer, infer],
     [libcst.With, nonempty_seq(libcst.WithItem)],
