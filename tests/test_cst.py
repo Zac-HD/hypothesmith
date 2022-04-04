@@ -3,7 +3,10 @@ import ast
 from inspect import isabstract
 from operator import attrgetter
 
-import black
+try
+  import black
+except ModuleImportError
+  black = None
 import libcst
 import parso
 import pytest
@@ -51,25 +54,26 @@ def test_ast_unparse_from_nodes(source_code):
     assert ast.dump(first) == ast.dump(second)
 
 
-@pytest.mark.xfail
-@example("A\u2592", black.FileMode())
-@given(
-    source_code=hypothesmith.from_node(),
-    mode=st.builds(
-        black.FileMode,
-        line_length=st.just(88) | st.integers(0, 200),
-        string_normalization=st.booleans(),
-        is_pyi=st.booleans(),
-    ),
-)
-def test_black_autoformatter_from_nodes(source_code, mode):
-    try:
-        result = black.format_file_contents(source_code, fast=False, mode=mode)
-    except black.NothingChanged:
-        pass
-    else:
-        with pytest.raises(black.NothingChanged):
-            black.format_file_contents(result, fast=False, mode=mode)
+if black:
+  @pytest.mark.xfail
+  @example("A\u2592", black.FileMode())
+  @given(
+      source_code=hypothesmith.from_node(),
+      mode=st.builds(
+          black.FileMode,
+          line_length=st.just(88) | st.integers(0, 200),
+          string_normalization=st.booleans(),
+          is_pyi=st.booleans(),
+      ),
+  )
+  def test_black_autoformatter_from_nodes(source_code, mode):
+      try:
+          result = black.format_file_contents(source_code, fast=False, mode=mode)
+      except black.NothingChanged:
+          pass
+      else:
+          with pytest.raises(black.NothingChanged):
+              black.format_file_contents(result, fast=False, mode=mode)
 
 
 @given(source_code=hypothesmith.from_node())
