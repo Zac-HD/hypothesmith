@@ -58,12 +58,12 @@ def test_ast_unparse_from_grammar(source_code):
     assert ast.dump(first) == ast.dump(second)
 
 
-@example("\\", black.FileMode())
-@example("A#\r#", black.FileMode())
+@example("\\", black.Mode())
+@example("A#\r#", black.Mode())
 @given(
     source_code=hypothesmith.from_grammar(),
     mode=st.builds(
-        black.FileMode,
+        black.Mode,
         line_length=st.just(88) | st.integers(0, 200),
         string_normalization=st.booleans(),
         is_pyi=st.booleans(),

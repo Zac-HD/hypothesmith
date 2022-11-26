@@ -52,11 +52,11 @@ def test_ast_unparse_from_nodes(source_code):
 
 
 @pytest.mark.xfail
-@example("A\u2592", black.FileMode())
+@example("A\u2592", black.Mode())
 @given(
     source_code=hypothesmith.from_node(),
     mode=st.builds(
-        black.FileMode,
+        black.Mode,
         line_length=st.just(88) | st.integers(0, 200),
         string_normalization=st.booleans(),
         is_pyi=st.booleans(),

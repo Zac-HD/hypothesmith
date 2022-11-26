@@ -13,7 +13,7 @@ from hypothesis.internal.charmap import _union_intervals
 from lark import Lark
 from lark.indenter import Indenter
 
-URL = "https://raw.githubusercontent.com/lark-parser/lark/master/examples/python3.lark"
+URL = "https://raw.githubusercontent.com/lark-parser/lark/master/lark/grammars/python.lark"
 fname = Path(__file__).with_name(URL.split("/")[-1])
 
 if fname.exists():

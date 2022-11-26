@@ -96,6 +96,10 @@ REGISTERED = (
         st.from_regex(_INDENT_WHITESPACE_RE, fullmatch=True),
     ],
     [libcst.IsNot, infer, nonempty_whitespace, infer],
+    [
+        libcst.MatchSingleton,
+        st.builds(libcst.Name, st.sampled_from(["None", "False", "True"])),
+    ],
     [libcst.NamedExpr, st.from_type(libcst.Name)],
     [
         libcst.Nonlocal,
