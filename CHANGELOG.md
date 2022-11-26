@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.2.1 - 2022-11-25
+- Use the `lark` package on PyPI, for Lark version 1.0+ (requires recent Hypothesis)
+- Use updated Python grammar for `from_grammar()`, thanks to Lark updates
+- Drop support for Python 3.6, add 3.10 and 3.11 to CI
+
 ### 0.2.0 - 2021-11-27
 - More efficient generation of Python identifiers
 - Workaround for [CPython parser bug in 3.9.8](https://bugs.python.org/issue45738) (#16)
