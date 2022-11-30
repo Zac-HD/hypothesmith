@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.2.2 - 2022-11-29
+- Correct the minimum required version of LibCST
+- Use `importlib.resources` to load the Python grammar (zip-safe)
+
 ### 0.2.1 - 2022-11-25
 - Use the `lark` package on PyPI, for Lark version 1.0+ (requires recent Hypothesis)
 - Use updated Python grammar for `from_grammar()`, thanks to Lark updates

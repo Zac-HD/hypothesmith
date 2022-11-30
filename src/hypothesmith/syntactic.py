@@ -3,9 +3,9 @@
 import ast
 import dis
 import sys
-import urllib.request
+import warnings
 from functools import lru_cache
-from pathlib import Path
+from importlib.resources import read_text
 
 from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
@@ -13,18 +13,12 @@ from hypothesis.internal.charmap import _union_intervals
 from lark import Lark
 from lark.indenter import Indenter
 
-URL = "https://raw.githubusercontent.com/lark-parser/lark/master/lark/grammars/python.lark"
-fname = Path(__file__).with_name(URL.split("/")[-1])
-
-if fname.exists():
-    with open(fname) as f:
-        lark_grammar = f.read()
-else:  # pragma: no cover
-    # To update the grammar definition, delete the file and execute this.
-    with urllib.request.urlopen(URL) as handle:
-        lark_grammar = handle.read().decode()
-    with open(fname, "w") as f:
-        f.write(lark_grammar)
+# To update this grammar file, run
+# wget https://raw.githubusercontent.com/lark-parser/lark/master/lark/grammars/python.lark -O src/hypothesmith/python.lark
+with warnings.catch_warnings():
+    # `read_text()` is deprecated; I'll update once I've dropped 3.8 and earlier.
+    warnings.simplefilter("ignore")
+    LARK_GRAMMAR = read_text("hypothesmith", "python.lark")
 
 COMPILE_MODES = {
     "eval_input": "eval",
@@ -181,5 +175,5 @@ def from_grammar(
     """
     assert start in {"single_input", "file_input", "eval_input"}
     assert isinstance(auto_target, bool)
-    grammar = Lark(lark_grammar, parser="lalr", postlex=PythonIndenter(), start=start)
+    grammar = Lark(LARK_GRAMMAR, parser="lalr", postlex=PythonIndenter(), start=start)
     return GrammarStrategy(grammar, start, auto_target)
