@@ -1,5 +1,8 @@
 # Changelog
 
+### 0.2.3 - 2022-12-01
+- Actually package up the renamed grammar file this time.
+
 ### 0.2.2 - 2022-11-29
 - Correct the minimum required version of LibCST
 - Use `importlib.resources` to load the Python grammar (zip-safe)

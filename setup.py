@@ -26,7 +26,7 @@ setuptools.setup(
     author_email="zac@hypothesis.works",
     packages=setuptools.find_packages(SOURCE),
     package_dir={"": SOURCE},
-    package_data={"": ["py.typed", "python3.lark"]},
+    package_data={"": ["py.typed", "python.lark"]},
     url="https://github.com/Zac-HD/hypothesmith",
     project_urls={"Funding": "https://github.com/sponsors/Zac-HD"},
     license="MPL 2.0",
