@@ -32,8 +32,8 @@ setuptools.setup(
     license="MPL 2.0",
     description="Hypothesis strategies for generating Python programs, something like CSmith",
     zip_safe=False,
-    install_requires=["hypothesis[lark]>=6.58.1", "libcst>=0.4.0"],
-    python_requires=">=3.7",
+    install_requires=["hypothesis[lark]>=6.84.1", "libcst>=1.0.1"],
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Framework :: Hypothesis",
@@ -41,7 +41,6 @@ setuptools.setup(
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

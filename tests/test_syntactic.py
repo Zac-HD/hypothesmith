@@ -96,12 +96,6 @@ def test_generation_without_targeting(source_code):
     compile(source_code, filename="<string>", mode="exec")
 
 
-@given(hypothesmith.syntactic.identifiers())
-def test_names_are_all_identifiers(name):
-    assert name.isidentifier()
-    name.encode()  # should be UTF-8 encodable
-
-
 @given(source_code=hypothesmith.from_grammar())
 def test_parso_from_grammar(source_code):
     result = parso.parse(source_code).get_code()

@@ -4,12 +4,10 @@ import ast
 import dis
 import sys
 import warnings
-from functools import lru_cache
 from importlib.resources import read_text
 
 from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
-from hypothesis.internal.charmap import _union_intervals
 from lark import Lark
 from lark.indenter import Indenter
 
@@ -27,27 +25,6 @@ COMPILE_MODES = {
     "simple_stmt": "single",
     "compound_stmt": "single",
 }
-
-
-def _chars_to_regex_set(s: list) -> str:
-    spans = tuple((ord(c), ord(c)) for c in s)
-    return "".join(
-        chr(a) if a == b else f"{chr(a)}-{chr(b)}"
-        for a, b in _union_intervals(spans, spans)
-    )
-
-
-@lru_cache()
-def identifiers() -> st.SearchStrategy[str]:
-    lead = []
-    subs = []
-    for c in map(chr, range(sys.maxunicode + 1)):
-        if utf8_encodable(c) and ("_" + c).isidentifier():
-            subs.append(c)  # e.g. "1"
-            if c.isidentifier():
-                lead.append(c)  # e.g. "a"
-    pattern = f"[{_chars_to_regex_set(lead)}][{_chars_to_regex_set(subs)}]*"
-    return st.from_regex(pattern, fullmatch=True)
 
 
 class PythonIndenter(Indenter):
@@ -76,7 +53,7 @@ class GrammarStrategy(LarkStrategy):
         explicit_strategies = {
             PythonIndenter.INDENT_type: st.just(" " * PythonIndenter.tab_len),
             PythonIndenter.DEDENT_type: st.just(""),
-            "NAME": identifiers(),
+            "NAME": st.text().filter(str.isidentifier),
         }
         super().__init__(grammar, start, explicit_strategies)
         self.terminal_strategies = {

@@ -21,8 +21,6 @@ from hypothesis.strategies._internal.types import _global_type_lookup
 from libcst._nodes.expression import ExpressionPosition
 from libcst._nodes.statement import _INDENT_WHITESPACE_RE
 
-from hypothesmith.syntactic import identifiers
-
 # For some nodes, we just need to ensure that they use the appropriate regex
 # pattern instead of allowing literally any string.
 for node_type, pattern in {
@@ -42,7 +40,9 @@ st.register_type_strategy(
 
 # `from_type()` has less laziness than other strategies, we we register for these
 # foundational node types *before* referring to them in other strategies.
-st.register_type_strategy(libcst.Name, st.builds(libcst.Name, identifiers()))
+st.register_type_strategy(
+    libcst.Name, st.builds(libcst.Name, st.text().filter(str.isidentifier))
+)
 st.register_type_strategy(
     libcst.SimpleString, st.builds(libcst.SimpleString, st.text().map(repr))
 )

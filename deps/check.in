@@ -4,5 +4,6 @@ flake8-bandit
 flake8-bugbear
 flake8-comprehensions
 flake8-docstrings
+hypothesis  # for typechecking
 mypy
 shed
