@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.3.0 - 2023-09-06
+- Even more efficient generation of Python identifiers, using
+  [Hypothesis 6.84.1](https://hypothesis.readthedocs.io/en/latest/changes.html#v6-84-1)
+- Dropped support for Python 3.7, which is end-of-life and not supported by Hypothesis
+
 ### 0.2.3 - 2022-12-01
 - Actually package up the renamed grammar file this time.
 
