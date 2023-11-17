@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.1 - 2023-09-06
+- Hypothesis >= 6.89.0 made some internal changes which broke our `from_grammar()`.
+  This patch restores compatibility, and requires the new Hypothesis.
+
 ### 0.3.0 - 2023-09-06
 - Even more efficient generation of Python identifiers, using
   [Hypothesis 6.84.1](https://hypothesis.readthedocs.io/en/latest/changes.html#v6-84-1)

@@ -80,12 +80,12 @@ class GrammarStrategy(LarkStrategy):
         return result
 
     def draw_symbol(self, data, symbol, draw_state):  # type: ignore
-        count = len(draw_state.result)
+        count = len(draw_state)
         super().draw_symbol(data, symbol, draw_state)
         if symbol.name in COMPILE_MODES:
             try:
                 compile(
-                    source="".join(draw_state.result[count:]),
+                    source="".join(draw_state[count:]),
                     filename="<string>",
                     mode=COMPILE_MODES[symbol.name],
                 )
@@ -108,7 +108,7 @@ class GrammarStrategy(LarkStrategy):
                     # Or the new https://bugs.python.org/issue45738 which makes me
                     # wish CPython would start running proptests in CI already.
                     assume(False)
-                source_code = ascii("".join(draw_state.result[count:]))
+                source_code = ascii("".join(draw_state[count:]))
                 raise type(err)(
                     f"compile({source_code}, '<string>', "
                     f"{COMPILE_MODES[symbol.name]!r}) "
