@@ -25,6 +25,7 @@ COMPILE_MODES = {
     "simple_stmt": "single",
     "compound_stmt": "single",
 }
+ALLOWED_CHARS = st.characters(codec="utf-8", min_codepoint=1)
 
 
 class PythonIndenter(Indenter):
@@ -37,17 +38,6 @@ class PythonIndenter(Indenter):
     tab_len = 4
 
 
-def utf8_encodable(terminal: str) -> bool:
-    try:
-        terminal.encode()
-        return True
-    except UnicodeEncodeError:  # pragma: no cover
-        # Very rarely, a "." in some terminal regex will generate a surrogate
-        # character that cannot be encoded as UTF-8.  We apply this filter to
-        # ensure it doesn't happen at runtime, but don't worry about coverage.
-        return False
-
-
 class GrammarStrategy(LarkStrategy):
     def __init__(self, grammar: Lark, start: str, auto_target: bool):
         explicit_strategies = {
@@ -55,11 +45,7 @@ class GrammarStrategy(LarkStrategy):
             PythonIndenter.DEDENT_type: st.just(""),
             "NAME": st.text().filter(str.isidentifier),
         }
-        super().__init__(grammar, start, explicit_strategies)
-        self.terminal_strategies = {
-            k: v.map(lambda s: s.replace("\0", "")).filter(utf8_encodable)
-            for k, v in self.terminal_strategies.items()  # type: ignore
-        }
+        super().__init__(grammar, start, explicit_strategies, alphabet=ALLOWED_CHARS)
         self.auto_target = auto_target and start != "single_input"
 
     def do_draw(self, data):  # type: ignore

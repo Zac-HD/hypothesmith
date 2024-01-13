@@ -21,6 +21,13 @@ from hypothesis.strategies._internal.types import _global_type_lookup
 from libcst._nodes.expression import ExpressionPosition
 from libcst._nodes.statement import _INDENT_WHITESPACE_RE
 
+from .syntactic import ALLOWED_CHARS
+
+
+def py_from_regex(pattern):
+    return st.from_regex(pattern, fullmatch=True, alphabet=ALLOWED_CHARS)
+
+
 # For some nodes, we just need to ensure that they use the appropriate regex
 # pattern instead of allowing literally any string.
 for node_type, pattern in {
@@ -29,11 +36,11 @@ for node_type, pattern in {
     libcst.Imaginary: IMAGNUMBER_RE,
     libcst.SimpleWhitespace: libcst._nodes.whitespace.SIMPLE_WHITESPACE_RE,
 }.items():
-    _strategy = st.builds(node_type, st.from_regex(pattern, fullmatch=True))
+    _strategy = st.builds(node_type, py_from_regex(pattern))
     st.register_type_strategy(node_type, _strategy)
 
 # type-ignore comments are special in the 3.8+ (typed) ast, so boost their chances)
-_comments = st.from_regex(libcst._nodes.whitespace.COMMENT_RE, fullmatch=True)
+_comments = py_from_regex(libcst._nodes.whitespace.COMMENT_RE)
 st.register_type_strategy(
     libcst.Comment, st.builds(libcst.Comment, _comments | st.just("# type: ignore"))
 )
@@ -68,9 +75,7 @@ def nonempty_seq(*node: Type[libcst.CSTNode]) -> st.SearchStrategy:
 # inference to provide most of our arguments for us.
 # However, in some cases we want to either restrict arguments (e.g. libcst.Name),
 # or supply something nastier than the default argument (e.g. libcst.SimpleWhitespace)
-nonempty_whitespace = st.builds(
-    libcst.SimpleWhitespace, st.from_regex(" +", fullmatch=True)
-)
+nonempty_whitespace = st.builds(libcst.SimpleWhitespace, py_from_regex(" +"))
 REGISTERED = (
     [libcst.Asynchronous, nonempty_whitespace],
     [libcst.AsName, st.from_type(libcst.Name)],
@@ -89,12 +94,7 @@ REGISTERED = (
         st.from_type(libcst.Name) | st.from_type(libcst.Attribute),
         nonempty_seq(libcst.ImportAlias),
     ],
-    [
-        libcst.IndentedBlock,
-        infer,
-        infer,
-        st.from_regex(_INDENT_WHITESPACE_RE, fullmatch=True),
-    ],
+    [libcst.IndentedBlock, infer, infer, py_from_regex(_INDENT_WHITESPACE_RE)],
     [libcst.IsNot, infer, nonempty_whitespace, infer],
     [
         libcst.MatchSingleton,

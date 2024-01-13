@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.3.2 - 2024-01-13
+- Performance improvements based on
+  [Hypothesis 6.93.0](https://hypothesis.readthedocs.io/en/latest/changes.html#v6-93-0)
+
 ### 0.3.1 - 2023-09-06
 - Hypothesis >= 6.89.0 made some internal changes which broke our `from_grammar()`.
   This patch restores compatibility, and requires the new Hypothesis.
