@@ -10,9 +10,9 @@ attrs==23.2.0
     #   hypothesis
 autoflake==2.2.1
     # via shed
-bandit==1.7.6
+bandit==1.7.7
     # via flake8-bandit
-black==23.12.1
+black==24.2.0
     # via shed
 click==8.1.7
     # via black
@@ -29,17 +29,13 @@ flake8==7.0.0
     #   flake8-docstrings
 flake8-bandit==4.1.1
     # via -r deps/check.in
-flake8-bugbear==23.12.2
+flake8-bugbear==24.2.6
     # via -r deps/check.in
 flake8-comprehensions==3.14.0
     # via -r deps/check.in
 flake8-docstrings==1.7.0
     # via -r deps/check.in
-gitdb==4.0.11
-    # via gitpython
-gitpython==3.1.41
-    # via bandit
-hypothesis==6.93.0
+hypothesis==6.98.6
     # via -r deps/check.in
 isort==5.13.2
     # via shed
@@ -64,7 +60,7 @@ pathspec==0.12.1
     # via black
 pbr==6.0.0
     # via stevedore
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via black
 pycodestyle==2.11.1
     # via flake8
@@ -84,10 +80,8 @@ pyyaml==6.0.1
     #   libcst
 rich==13.7.0
     # via bandit
-shed==2023.6.1
+shed==2024.1.1
     # via -r deps/check.in
-smmap==5.0.1
-    # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
 sortedcontainers==2.4.0

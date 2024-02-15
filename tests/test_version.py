@@ -1,4 +1,5 @@
 """Tests for the hypothesmith package metadata."""
+
 import re
 from datetime import date
 from functools import lru_cache
