@@ -3,8 +3,6 @@
 import ast
 import dis
 import sys
-import warnings
-from importlib.resources import read_text
 
 from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
@@ -13,10 +11,16 @@ from lark.indenter import Indenter
 
 # To update this grammar file, run
 # wget https://raw.githubusercontent.com/lark-parser/lark/master/lark/grammars/python.lark -O src/hypothesmith/python.lark
-with warnings.catch_warnings():
-    # `read_text()` is deprecated; I'll update once I've dropped 3.8 and earlier.
-    warnings.simplefilter("ignore")
+if sys.version_info < (3, 9):  # pragma: no cover
+    from importlib.resources import read_text
+
     LARK_GRAMMAR = read_text("hypothesmith", "python.lark")
+else:  # pragma: no cover  # not on py38, anyway
+    from importlib.resources import files
+
+    LARK_GRAMMAR = (
+        files("hypothesmith").joinpath("python.lark").read_text(encoding="utf8")
+    )
 
 COMPILE_MODES = {
     "eval_input": "eval",

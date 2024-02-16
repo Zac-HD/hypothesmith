@@ -1,5 +1,7 @@
 """Tests for the hypothesmith.cst module."""
+
 import ast
+import sys
 from inspect import isabstract
 from operator import attrgetter
 
@@ -83,6 +85,7 @@ def test_compilable_never_raises(s):
     compilable(s)
 
 
+@pytest.mark.xfail(sys.version_info >= (3, 13), reason="parso does not support 3.13")
 @given(source_code=hypothesmith.from_node())
 def test_parso_from_node(source_code):
     result = parso.parse(source_code).get_code()
