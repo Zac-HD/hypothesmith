@@ -15,7 +15,7 @@ if sys.version_info < (3, 9):  # pragma: no cover
     from importlib.resources import read_text
 
     LARK_GRAMMAR = read_text("hypothesmith", "python.lark")
-else:
+else:  # pragma: no cover  # not on py38, anyway
     from importlib.resources import files
 
     LARK_GRAMMAR = (

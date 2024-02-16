@@ -1,9 +1,8 @@
 # Changelog
 
-### Future
-- Add Python 3.12 to CI
+### 0.3.3 - 2024-02-16
+- Add Python 3.12 and 3.13 to CI
 - Can now be imported on Python 3.13
-- Add Python 3.13 to CI, two tests depending on parso marked xfail as parso does not support 3.13
 
 ### 0.3.2 - 2024-01-13
 - Performance improvements based on
