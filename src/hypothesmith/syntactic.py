@@ -3,16 +3,21 @@
 import ast
 import dis
 import sys
-from importlib.resources import files
 
 from hypothesis import assume, strategies as st
 from hypothesis.extra.lark import LarkStrategy
 from lark import Lark
 from lark.indenter import Indenter
 
+
 # To update this grammar file, run
 # wget https://raw.githubusercontent.com/lark-parser/lark/master/lark/grammars/python.lark -O src/hypothesmith/python.lark
-LARK_GRAMMAR = files("hypothesmith").joinpath("python.lark").read_text(encoding="utf8")
+if sys.version_info < (3, 9):
+    from importlib.resources import read_text
+    LARK_GRAMMAR = read_text("hypothesmith", "python.lark")
+else:
+    from importlib.resources import files
+    LARK_GRAMMAR = files("hypothesmith").joinpath("python.lark").read_text(encoding="utf8")
 
 COMPILE_MODES = {
     "eval_input": "eval",

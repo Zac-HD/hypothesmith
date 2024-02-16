@@ -98,7 +98,7 @@ def test_generation_without_targeting(source_code):
     compile(source_code, filename="<string>", mode="exec")
 
 
-@pytest.mark.xfail(sys.version_info > (3, 13), reason="parso does not support 3.13")
+@pytest.mark.xfail(sys.version_info >= (3, 13), reason="parso does not support 3.13")
 @given(source_code=hypothesmith.from_grammar())
 def test_parso_from_grammar(source_code):
     result = parso.parse(source_code).get_code()

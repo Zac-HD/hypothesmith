@@ -1,9 +1,9 @@
 # Changelog
 
 ### Future
-- Drop support for Python 3.8, which is end-of-life
-- Add Python 3.12
-- Can now be imported on Python 3.13, but parso does not support 3.13
+- Add Python 3.12 to CI
+- Can now be imported on Python 3.13
+- Add Python 3.13 to CI, two tests depending on parso marked xfail as parso does not support 3.13
 
 ### 0.3.2 - 2024-01-13
 - Performance improvements based on
